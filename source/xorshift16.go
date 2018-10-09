@@ -53,7 +53,7 @@ func (xs *HalfXS16) Read(buff []uint8) (int, error) {
 	buffLen := len(buff)
 	for i := 0; i < buffLen; i++ {
 		xs.state = XorShift16(xs.state)
-		buff[i] = uint8(xs.state)
+		buff[i] = uint8(xs.state >> 8)
 	}
 	return buffLen, nil
 }
