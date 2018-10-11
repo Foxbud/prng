@@ -9,13 +9,13 @@ import (
 )
 
 func ImageProfile(src io.Reader, path string, width, height int) {
-	buff := make([]uint8, height*width)
-	src.Read(buff[:])
+	buf := make([]uint8, height*width)
+	src.Read(buf)
 
 	pic := image.NewNRGBA(image.Rect(0, 0, width, height))
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			pic.Set(x, y, color.Gray{buff[y*width+x]})
+			pic.Set(x, y, color.Gray{buf[y*width+x]})
 		}
 	}
 

@@ -14,14 +14,14 @@ type STDSource struct {
 	src Source
 }
 
-func AsSTDSource(src Source) *STDSource {
+func NewSTDSource(src Source) *STDSource {
 	return &STDSource{src}
 }
 
 func (s *STDSource) Seed(seed int64) {
-	buff := make([]uint8, 8)
-	binary.LittleEndian.PutUint64(buff, uint64(seed))
-	s.src.Seed(buff)
+	buf := make([]uint8, 8)
+	binary.LittleEndian.PutUint64(buf, uint64(seed))
+	s.src.Seed(buf)
 }
 
 func (s *STDSource) Int63() int64 {
@@ -29,7 +29,7 @@ func (s *STDSource) Int63() int64 {
 }
 
 func (s *STDSource) Uint64() uint64 {
-	buff := make([]uint8, 8)
-	s.src.Read(buff)
-	return binary.LittleEndian.Uint64(buff)
+	buf := make([]uint8, 8)
+	s.src.Read(buf)
+	return binary.LittleEndian.Uint64(buf)
 }
