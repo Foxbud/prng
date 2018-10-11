@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/binary"
+	"math/bits"
 
 	"bitbucket.org/Foxbud/prng/source"
 )
@@ -26,30 +27,14 @@ func (sm *SourceMapper) Read(ebuf []uint8) (int, error) {
 }
 
 func (sm *SourceMapper) Uint64(bound uint64) uint64 {
-	nBytes := 8
-	switch {
-	case bound <= 0x100:
-		nBytes = 1
-	case bound <= 0x10000:
-		nBytes = 2
-	case bound <= 0x1000000:
-		nBytes = 3
-	case bound <= 0x100000000:
-		nBytes = 4
-	case bound <= 0x10000000000:
-		nBytes = 5
-	case bound <= 0x1000000000000:
-		nBytes = 6
-	case bound <= 0x100000000000000:
-		nBytes = 7
-	}
-	sm.src.Read(sm.buf[:nBytes-1])
-	for i := range sm.buf[nBytes:8] {
+	nBits := bits.Len64(bound)
+	nBytes := (nBits + 7) >> 3
+	for i := range sm.buf[nBytes:] {
 		sm.buf[i] = 0
 	}
 	val := bound
 	for val >= bound {
-		sm.src.Read(sm.buf[nBytes-1 : nBytes])
+		sm.src.Read(sm.buf[:nBytes])
 		val = binary.LittleEndian.Uint64(sm.buf[:8])
 	}
 	return val
