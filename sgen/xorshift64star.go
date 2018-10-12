@@ -1,9 +1,5 @@
 package sgen
 
-import (
-	"encoding/binary"
-)
-
 const (
 	// Defaults recommended by Vigna in "An experimental exploration of
 	// Marsaglia’s xorshift generators, scrambled".
@@ -15,30 +11,41 @@ const (
 
 type XS64Star struct {
 	state uint64
-	buf   []uint8
+	buf   uint64
+	rem   uint8
 }
 
 func NewXS64Star() *XS64Star {
-	return &XS64Star{XS64DefaultSeed, make([]uint8, 0, 8)}
+	return &XS64Star{XS64DefaultSeed, 0, 0}
 }
 
 func (xs *XS64Star) Seed(seed []uint8) {
-	xs.state = binary.LittleEndian.Uint64(seed[:8])
-	xs.buf = xs.buf[:0]
+	xs.state = 0
+	xs.rem = 0
+	for i := 7; i >= 0; i-- {
+		xs.state ^= uint64(seed[i])
+		xs.state <<= 8
+	}
 }
 
-func (xs *XS64Star) Read(ebuf []uint8) (int, error) {
-	for i := range ebuf {
-		if len(xs.buf) == 0 {
-			xs.state ^= xs.state << XS64ParamA
-			xs.state ^= xs.state >> XS64ParamB
-			xs.state ^= xs.state << XS64ParamC
-			xs.buf = xs.buf[:cap(xs.buf)]
-			binary.BigEndian.PutUint64(xs.buf, xs.state*XS64StarCoef)
+func (xs *XS64Star) Read(buf []uint8) (int, error) {
+	lState := xs.state
+	lBuf := xs.buf
+	lRem := xs.rem
+	for i := range buf {
+		if lRem == 0 {
+			lState ^= lState << XS64StarParamA
+			lState ^= lState >> XS64StarParamB
+			lState ^= lState << XS64StarParamC
+			lBuf = lState * XS64StarCoef
+			lRem = 8
 		}
-		end := len(xs.buf) - 1
-		ebuf[i] = xs.buf[end]
-		xs.buf = xs.buf[:end]
+		buf[i] = uint8(lBuf)
+		lBuf >>= 8
+		lRem--
 	}
-	return len(ebuf), nil
+	xs.state = lState
+	xs.buf = lBuf
+	xs.rem = lRem
+	return len(buf), nil
 }
