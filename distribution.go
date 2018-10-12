@@ -4,38 +4,38 @@ import (
 	"encoding/binary"
 	"math/bits"
 
-	"bitbucket.org/Foxbud/prng/source"
+	"bitbucket.org/Foxbud/prng/sgen"
 )
 
-type SourceMapper struct {
-	src source.Source
+type GenTools struct {
+	gen sgen.Generator
 	buf []uint8
 }
 
-func NewSourceMapper(src source.Source) *SourceMapper {
-	return &SourceMapper{src, make([]uint8, 8, 8)}
+func NewGenTools(gen sgen.Generator) *GenTools {
+	return &GenTools{gen, make([]uint8, 8, 8)}
 }
 
-func (sm *SourceMapper) Seed(seed uint64) {
-	binary.LittleEndian.PutUint64(sm.buf, seed)
-	sm.src.Seed(sm.buf)
+func (gt *GenTools) Seed(seed uint64) {
+	binary.LittleEndian.PutUint64(gt.buf, seed)
+	gt.gen.Seed(gt.buf)
 }
 
-func (sm *SourceMapper) Read(ebuf []uint8) (int, error) {
-	n, err := sm.src.Read(ebuf)
+func (gt *GenTools) Read(ebuf []uint8) (int, error) {
+	n, err := gt.gen.Read(ebuf)
 	return n, err
 }
 
-func (sm *SourceMapper) Uint64(bound uint64) uint64 {
+func (gt *GenTools) Uint64(bound uint64) uint64 {
 	nBits := bits.Len64(bound)
 	nBytes := (nBits + 7) >> 3
-	for i := range sm.buf[nBytes:] {
-		sm.buf[i] = 0
+	for i := range gt.buf[nBytes:] {
+		gt.buf[i] = 0
 	}
 	val := bound
 	for val >= bound {
-		sm.src.Read(sm.buf[:nBytes])
-		val = binary.LittleEndian.Uint64(sm.buf[:8])
+		gt.gen.Read(gt.buf[:nBytes])
+		val = binary.LittleEndian.Uint64(gt.buf[:8])
 	}
 	return val
 }

@@ -1,4 +1,4 @@
-package source
+package sgen
 
 import (
 	"encoding/binary"
