@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
 
 	"bitbucket.org/Foxbud/prng/sgen"
@@ -10,10 +9,13 @@ import (
 
 func main() {
 	gen := sgen.NewXS64Star()
-	rng := rand.New(sgen.NewSource(gen))
+	//rng := rand.New(sgen.NewSource(gen))
 	buf := make([]uint8, 1024*1024*100)
+	gen.Read(buf)
 	start := time.Now()
-	rng.Read(buf)
+	for i := 0; i < 1024*1024*100/8; i++ {
+		gen.Seed(buf[i : i+8])
+	}
 	end := time.Now()
 	fmt.Printf("%v\n", end.Sub(start))
 }

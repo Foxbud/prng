@@ -19,12 +19,13 @@ func NewXS32() *XS32 {
 }
 
 func (xs *XS32) Seed(seed []uint8) {
-	xs.state = 0
 	xs.rem = 0
-	for i := 3; i >= 0; i-- {
-		xs.state ^= uint32(seed[i])
-		xs.state <<= 8
+	val := uint32(seed[3])
+	for i := 2; i >= 0; i-- {
+		val <<= 8
+		val ^= uint32(seed[i])
 	}
+	xs.state = val
 }
 
 func (xs *XS32) Read(buf []uint8) (int, error) {

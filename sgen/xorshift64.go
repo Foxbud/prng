@@ -19,12 +19,13 @@ func NewXS64() *XS64 {
 }
 
 func (xs *XS64) Seed(seed []uint8) {
-	xs.state = 0
 	xs.rem = 0
-	for i := 7; i >= 0; i-- {
-		xs.state ^= uint64(seed[i])
-		xs.state <<= 8
+	val := uint64(seed[7])
+	for i := 6; i >= 0; i-- {
+		val <<= 8
+		val ^= uint64(seed[i])
 	}
+	xs.state = val
 }
 
 func (xs *XS64) Read(buf []uint8) (int, error) {
