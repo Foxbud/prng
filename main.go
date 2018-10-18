@@ -1,21 +1,23 @@
 package main
 
-import (
-	"fmt"
-	"time"
-
-	"bitbucket.org/Foxbud/prng/sgen"
-)
+import "fmt"
 
 func main() {
-	gen := sgen.NewXS64Star()
-	//rng := rand.New(sgen.NewSource(gen))
-	buf := make([]uint8, 1024*1024*100)
-	gen.Read(buf)
-	start := time.Now()
-	for i := 0; i < 1024*1024*100/8; i++ {
-		gen.Seed(buf[i : i+8])
+	x := uint64(0)
+	m := uint64(11 * 19)
+	buf := uint8(0)
+	for i := 0; i < 1; i++ {
+		buf = 0
+		for j := 0; j < 8; j++ {
+			x = blumblumshub(x, m)
+			fmt.Printf("%v\n", x)
+			buf ^= uint8(x) & 1
+			buf <<= 1
+		}
+		//fmt.Printf("%v\n", buf)
 	}
-	end := time.Now()
-	fmt.Printf("%v\n", end.Sub(start))
+}
+
+func blumblumshub(x, m uint64) uint64 {
+	return (x * x) % m
 }
