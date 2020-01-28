@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"math/bits"
 
-	"bitbucket.org/Foxbud/prng/sgen"
+	"github.com/Foxbud/prng/sgen"
 )
 
 type GenTools struct {
